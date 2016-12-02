@@ -130,6 +130,23 @@ public class Spline2D {
         lenSampleDirty = true;
     }
 
+    /// Add a list of points to the end of the spline, in order
+    public void AddPoints(IEnumerable<Vector2> plist) {
+        points.AddRange(plist);
+        tangentsDirty = true;
+        lenSampleDirty = true;
+    }
+
+    /// Replace all the points in the spline from fromIndex onwards with a new set
+    public void ReplacePoints(IEnumerable<Vector2> plist, int fromIndex = 0) {
+        Assert.IsTrue(fromIndex < points.Count, "Spline2D: point index out of range");
+
+        points.RemoveRange(fromIndex, points.Count-fromIndex);
+        points.AddRange(plist);
+        tangentsDirty = true;
+        lenSampleDirty = true;
+    }
+
     /// Change a point on the curve
     public void SetPoint(int index, Vector2 p) {
         Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
