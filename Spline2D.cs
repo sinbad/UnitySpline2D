@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 // Utility class for calculating a Cubic multi-segment (Hermite) spline in 2D
 // Hermite splines are convenient because they only need 2 positions and 2
@@ -105,23 +106,19 @@ public class Spline2D {
 
     /// Change a point on the curve
     public void SetPoint(int index, Vector2 p) {
-        if (index < points.Count) {
-            points[index] = p;
-            tangentsDirty = true;
-            lenSampleDirty = true;
-        } else {
-            Debug.LogError("Spline2D: Trying to set invalid point index");
-        }
+        Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
+
+        points[index] = p;
+        tangentsDirty = true;
+        lenSampleDirty = true;
     }
     // Remove a point on the curve
     public void RemovePoint(int index) {
-        if (index < points.Count) {
-            points.RemoveAt(index);
-            tangentsDirty = true;
-            lenSampleDirty = true;
-        } else {
-            Debug.LogError("Spline2D: Trying to remove invalid point index");
-        }
+        Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
+
+        points.RemoveAt(index);
+        tangentsDirty = true;
+        lenSampleDirty = true;
     }
 
     // TODO add more efficient 'scrolling' curve of N length where we add one &
@@ -135,11 +132,9 @@ public class Spline2D {
     }
     /// Get a single point
     public Vector2 GetPoint(int index) {
-        if (index < points.Count) {
-            return points[index];
-        }
-        Debug.LogError("Spline2D: Requested invalid point index");
-        return Vector2.zero;
+        Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
+
+        return points[index];
     }
 
 
