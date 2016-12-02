@@ -104,6 +104,32 @@ public class Spline2D {
         lenSampleDirty = true;
     }
 
+    /// Add a point to the curve by dropping the earliest point and scrolling
+    /// all other points backwards
+    /// This allows you to maintain a fixed-size spline which you extend to new
+    /// points at the expense of dropping earliest points. This is efficient for
+    /// unbounded paths you need to keep adding to but don't need the old history
+    /// Note that when you do this the distances change to being measured from
+    /// the new start point so you have to adjust your next interpolation request
+    /// to take this into account. Subtract DistanceAtPoint(1) from distances
+    /// before calling this method, for example (or for plain `t` interpolation,
+    /// reduce `t` by 1f/Count)
+    /// This method cannot be used on closed splines
+    public void AddPointScroll(Vector2 p) {
+        Assert.IsFalse(closed, "Cannot use AddPointScroll on closed splines!");
+
+        if (points.Count == 0) {
+            AddPoint(p);
+        } else {
+            for (int i = 0; i < points.Count - 1; ++i) {
+                points[i] = points[i+1];
+            }
+            points[points.Count-1] = p;
+        }
+        tangentsDirty = true;
+        lenSampleDirty = true;
+    }
+
     /// Change a point on the curve
     public void SetPoint(int index, Vector2 p) {
         Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
@@ -305,6 +331,19 @@ public class Spline2D {
     public Vector2 DerivativeDistance(float dist) {
         float t = DistanceToLinearT(dist);
         return Derivative(t);
+    }
+
+    /// Get the distance at a point index
+    public float DistanceAtPoint(int index) {
+        Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
+
+        // Length samples are from first actual distance, with points at
+        // LengthSamplesPerSegment intervals
+        if (index == 0) {
+            return 0.0f;
+        }
+        Recalculate(true);
+        return distanceToTList[index].distance;
     }
 
     private void Recalculate(bool includingLength) {
