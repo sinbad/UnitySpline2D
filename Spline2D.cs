@@ -63,13 +63,6 @@ public class Spline2D {
     }
     private List<DistanceToT> distanceToTList = new List<DistanceToT>();
 
-    // For gizmo drawing
-	private const int stepsPerSegment = 20;
-	public bool showNormals;
-	public bool showDistance;
-	public float distanceMarker = 1.0f;
-
-
     /// Get point count
     public int Count {
         get { return points.Count; }
@@ -236,10 +229,6 @@ public class Spline2D {
     /// This is not normalised by default in case you don't need that
     public Vector2 Derivative(int fromIndex, float t) {
         Recalculate(false);
-
-        if (fromIndex >= points.Count) {
-            Debug.Break();
-        }
 
         int toIndex = fromIndex + 1;
         // At or beyond last index?
