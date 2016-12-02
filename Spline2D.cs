@@ -300,9 +300,18 @@ public class Spline2D {
     /// Convert a physical distance to a t position on the curve. This is
     /// approximate, the accuracy of can be changed via LengthSamplesPerSegment
     public float DistanceToLinearT(float dist) {
+        int i;
+        return DistanceToLinearT(dist, out i);
+    }
+
+    /// Convert a physical distance to a t position on the curve. This is
+    /// approximate, the accuracy of can be changed via LengthSamplesPerSegment
+    /// Also returns an out param of the last point index passed
+    public float DistanceToLinearT(float dist, out int lastIndex) {
         Recalculate(true);
 
         if (distanceToTList.Count == 0) {
+            lastIndex = 0;
             return 0.0f;
         }
 
@@ -314,6 +323,7 @@ public class Spline2D {
                 dist = dist % len;
             } else {
                 // clamp to end
+                lastIndex = points.Count - 1;
                 return 1.0f;
             }
         }
@@ -325,6 +335,7 @@ public class Spline2D {
             DistanceToT distToT = distanceToTList[i];
             if (dist < distToT.distance) {
                 float distanceT = Mathf.InverseLerp(prevDist, distToT.distance, dist);
+                lastIndex = i; // not i-1 because distanceToTList starts at point index 1
                 return Mathf.Lerp(prevT, distToT.t, distanceT);
             }
             prevDist = distToT.distance;
@@ -332,6 +343,7 @@ public class Spline2D {
         }
 
         // If we got here then we ran off the end
+        lastIndex = points.Count - 1;
         return 1.0f;
     }
 
