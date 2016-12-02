@@ -335,7 +335,7 @@ public class Spline2D {
             DistanceToT distToT = distanceToTList[i];
             if (dist < distToT.distance) {
                 float distanceT = Mathf.InverseLerp(prevDist, distToT.distance, dist);
-                lastIndex = i; // not i-1 because distanceToTList starts at point index 1
+                lastIndex = i / lengthSamplesPerSegment; // not i-1 because distanceToTList starts at point index 1
                 return Mathf.Lerp(prevT, distToT.t, distanceT);
             }
             prevDist = distToT.distance;
@@ -372,7 +372,7 @@ public class Spline2D {
             return 0.0f;
         }
         Recalculate(true);
-        return distanceToTList[index].distance;
+        return distanceToTList[index*lengthSamplesPerSegment - 1].distance;
     }
 
     private void Recalculate(bool includingLength) {
