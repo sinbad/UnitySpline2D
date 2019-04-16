@@ -184,9 +184,9 @@ public class Spline2DComponent : MonoBehaviour {
 		}
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.yellow;
-        Vector2 plast = transform.TransformPoint(GetPoint(0));
+        Vector3 plast = transform.TransformPoint(GetPoint(0));
         for (float t = sampleWidth; t <= 1.0f; t += sampleWidth) {
-            Vector2 p = transform.TransformPoint(Interpolate(t));
+            Vector3 p = transform.TransformPoint(Interpolate(t));
             Gizmos.DrawLine(plast, p);
             plast = p;
         }
@@ -199,8 +199,8 @@ public class Spline2DComponent : MonoBehaviour {
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.magenta;
         for (float t = 0.0f; t <= 1.0f; t += sampleWidth) {
-            Vector2 p = transform.TransformPoint(Interpolate(t));
-			Vector2 tangent = Derivative(t);
+            Vector3 p = transform.TransformPoint(Interpolate(t));
+			Vector3 tangent = Derivative(t);
             Gizmos.DrawLine(p, p + tangent);
         }
 	}
@@ -217,13 +217,13 @@ public class Spline2DComponent : MonoBehaviour {
 			// Just so we only have to perform the dist->t calculation once
 			// for both position & tangent
 			float t = DistanceToLinearT(dist);
-            Vector2 p = transform.TransformPoint(Interpolate(t));
-			Vector2 tangent = Derivative(t);
+            Vector3 p = transform.TransformPoint(Interpolate(t));
+			Vector3 tangent = Derivative(t);
 			// Rotate tangent 90 degrees so we can render marker
 			tangent.Normalize();
 			tangent = rot90 * tangent;
-			Vector2 t1 = p + tangent;
-			Vector2 t2 = p - tangent;
+			Vector3 t1 = p + tangent;
+			Vector3 t2 = p - tangent;
             Gizmos.DrawLine(t1, t2);
         }
 

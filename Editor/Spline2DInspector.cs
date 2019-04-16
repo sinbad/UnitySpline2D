@@ -134,8 +134,8 @@ public class Spline2DInspector : Editor {
 		}
     }
 
-	private Vector3 ShowPoint (int index) {
-		Vector2 point = spline.transform.TransformPoint(spline.GetPoint(index));
+	private void ShowPoint (int index) {
+		Vector3 point = spline.transform.TransformPoint(spline.GetPoint(index));
 		float size = HandleUtility.GetHandleSize(point);
 		if (index == 0) {
 			Handles.color = Color.green;
