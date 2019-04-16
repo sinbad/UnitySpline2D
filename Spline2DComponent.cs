@@ -8,6 +8,9 @@ using UnityEngine;
 public class Spline2DComponent : MonoBehaviour {
     private Spline2D spline;
 
+    [Tooltip("Display in the XZ plane in the editor instead of the default XY plane (spline is still in XY)")]
+    public bool displayXZ;
+
     private void InitSpline() {
         if (spline == null) {
             spline = new Spline2D(points, closed, curvature, lengthSamplesPerSegment);
@@ -184,9 +187,17 @@ public class Spline2DComponent : MonoBehaviour {
 		}
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.yellow;
-        Vector3 plast = transform.TransformPoint(GetPoint(0));
+        Vector3 plast = GetPoint(0);
+        if (displayXZ) {
+            plast = FlipXYtoXZ(plast);
+        }
+        plast = transform.TransformPoint(plast);
         for (float t = sampleWidth; t <= 1.0f; t += sampleWidth) {
-            Vector3 p = transform.TransformPoint(Interpolate(t));
+            Vector3 p = Interpolate(t);
+            if (displayXZ)
+                p = FlipXYtoXZ(p);
+            p = transform.TransformPoint(p);
+
             Gizmos.DrawLine(plast, p);
             plast = p;
         }
@@ -199,8 +210,13 @@ public class Spline2DComponent : MonoBehaviour {
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.magenta;
         for (float t = 0.0f; t <= 1.0f; t += sampleWidth) {
-            Vector3 p = transform.TransformPoint(Interpolate(t));
+            Vector3 p = Interpolate(t);
+            if (displayXZ)
+                p = FlipXYtoXZ(p);
+            transform.TransformPoint(p);
 			Vector3 tangent = Derivative(t);
+            if (displayXZ)
+                tangent = FlipXYtoXZ(tangent);
             Gizmos.DrawLine(p, p + tangent);
         }
 	}
@@ -211,16 +227,21 @@ public class Spline2DComponent : MonoBehaviour {
 		}
         float len = Length;
         Gizmos.color = Color.green;
-		Quaternion rot90 = Quaternion.AngleAxis(90, Vector3.forward);
+		Quaternion rot90 = Quaternion.AngleAxis(90, displayXZ ? Vector3.up : Vector3.forward);
 
         for (float dist = 0.0f; dist <= len; dist += distanceMarker) {
 			// Just so we only have to perform the dist->t calculation once
 			// for both position & tangent
 			float t = DistanceToLinearT(dist);
-            Vector3 p = transform.TransformPoint(Interpolate(t));
+            Vector3 p = Interpolate(t);
+            if (displayXZ)
+                p = FlipXYtoXZ(p);
+            p = transform.TransformPoint(p);
 			Vector3 tangent = Derivative(t);
 			// Rotate tangent 90 degrees so we can render marker
 			tangent.Normalize();
+            if (displayXZ)
+                tangent = FlipXYtoXZ(tangent);
 			tangent = rot90 * tangent;
 			Vector3 t1 = p + tangent;
 			Vector3 t2 = p - tangent;
@@ -228,5 +249,12 @@ public class Spline2DComponent : MonoBehaviour {
         }
 
 	}
+
+    public static Vector3 FlipXYtoXZ(Vector3 inp) {
+        return new Vector3(inp.x, 0, inp.y);
+    }
+    public static Vector3 FlipXZtoXY(Vector3 inp) {
+        return new Vector3(inp.x, inp.z, 0);
+    }
 
 }

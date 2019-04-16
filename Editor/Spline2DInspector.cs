@@ -40,6 +40,12 @@ public class Spline2DInspector : Editor {
 			spline.IsClosed = closed;
 		}
 		EditorGUI.BeginChangeCheck();
+		bool xz = EditorGUILayout.Toggle("X/Z Mode", spline.displayXZ);
+		if (EditorGUI.EndChangeCheck()) {
+			Undo.RecordObject(spline, "Toggle XZ Mode");
+			spline.displayXZ = xz;
+		}
+		EditorGUI.BeginChangeCheck();
 		float curve = EditorGUILayout.FloatField("Curvature", spline.Curvature);
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(spline, "Set Curvature");
@@ -135,7 +141,10 @@ public class Spline2DInspector : Editor {
     }
 
 	private void ShowPoint (int index) {
-		Vector3 point = spline.transform.TransformPoint(spline.GetPoint(index));
+		Vector3 point = spline.GetPoint(index);
+		if (spline.displayXZ)
+			point = Spline2DComponent.FlipXYtoXZ(point);
+		point = spline.transform.TransformPoint(point);
 		float size = HandleUtility.GetHandleSize(point);
 		if (index == 0) {
 			Handles.color = Color.green;
@@ -155,10 +164,12 @@ public class Spline2DInspector : Editor {
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(spline, "Move Point");
 				EditorUtility.SetDirty(spline);
-				spline.SetPoint(index, spline.transform.InverseTransformPoint(point));
+				Vector3 newPoint = spline.transform.InverseTransformPoint(point);
+				if (spline.displayXZ) 
+					newPoint = Spline2DComponent.FlipXZtoXY(newPoint);
+				spline.SetPoint(index, newPoint);
 			}
 		}
-		return point;
 	}
 
 }
