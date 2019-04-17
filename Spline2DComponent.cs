@@ -251,7 +251,7 @@ public class Spline2DComponent : MonoBehaviour {
     /// Interpolate a position on the entire curve based on distance in world space. This is
     /// approximate, the accuracy of can be changed via LengthSamplesPerSegment
     public Vector3 InterpolateDistanceWorldSpace(float dist) {
-        var p = InterpolateDistance(dist);
+        Vector3 p = InterpolateDistance(dist);
         if (displayXZ)
             p = FlipXYtoXZ(p);
         return transform.TransformPoint(p);
