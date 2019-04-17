@@ -80,19 +80,38 @@ public class Spline2DComponent : MonoBehaviour {
         }
     }
 
-    /// Add a point to the curve
+    /// Add a point to the curve (local 2D space)
     public void AddPoint(Vector2 p) {
         // We share the same list so adding there adds here
         InitSpline();
         spline.AddPoint(p);
     }
 
-    /// Change a point on the curve
+    /// Add a point to the curve based on a world space position
+    /// If point is off the plane of the spline it will be projected back on to it
+    public void AddPointWorldSpace(Vector3 p) {
+        Vector3 localP = transform.InverseTransformPoint(p);
+        if (displayXZ) 
+            localP = FlipXZtoXY(localP);
+        AddPoint(localP);
+    }
+
+    /// Change a point on the curve (local 2D space)
     public void SetPoint(int index, Vector2 p) {
         // We share the same list so changing there adds here
         InitSpline();
         spline.SetPoint(index, p);
     }
+    
+    /// Change a point on the curve based on a world space position
+    /// If point is off the plane of the spline it will be projected back on to it
+    public void SetPointWorldSpace(int index, Vector3 p) {
+        Vector3 localP = transform.InverseTransformPoint(p);
+        if (displayXZ) 
+            localP = FlipXZtoXY(localP);
+        SetPoint(index, localP);
+    }
+
     // Remove a point on the curve
     public void RemovePoint(int index) {
         // We share the same list so changing there adds here
@@ -109,22 +128,39 @@ public class Spline2DComponent : MonoBehaviour {
         InitSpline();
         spline.Clear();
     }
-    /// Get a single point
+    /// Get a single point in local 2D space
     public Vector2 GetPoint(int index) {
         InitSpline();
         return spline.GetPoint(index);
     }
+    /// Get a single point in world space
+    public Vector3 GetPointWorldSpace(int index) {
+        Vector3 p = GetPoint(index);
+        if (displayXZ)
+            p = FlipXYtoXZ(p);
+        return transform.TransformPoint(p);
+    }
 
 
 
-    /// Interpolate a position on the entire curve. Note that if the control
+    /// Interpolate a position on the entire curve in local 2D space. Note that if the control
     /// points are not evenly spaced, this may result in varying speeds.
     public Vector2 Interpolate(float t) {
         InitSpline();
         return spline.Interpolate(t);
     }
 
+    /// Interpolate a position on the entire curve in world space. Note that if the control
+    /// points are not evenly spaced, this may result in varying speeds.
+    public Vector3 InterpolateWorldSpace(float t) {
+        Vector3 p = Interpolate(t);
+        if (displayXZ)
+            p = FlipXYtoXZ(p);
+        return transform.TransformPoint(p);
+    }
+
     /// Interpolate a position between one point on the curve and the next
+    /// in local 2D space.
     /// Rather than interpolating over the entire curve, this simply interpolates
     /// between the point with fromIndex and the next point
     public Vector2 Interpolate(int fromIndex, float t) {
@@ -132,7 +168,18 @@ public class Spline2DComponent : MonoBehaviour {
         return spline.Interpolate(fromIndex, t);
     }
 
-    /// Get derivative of the curve at a point. Note that if the control
+    /// Interpolate a position between one point on the curve and the next
+    /// in world space.
+    /// Rather than interpolating over the entire curve, this simply interpolates
+    /// between the point with fromIndex and the next point
+    public Vector3 InterpolateWorldSpace(int fromIndex, float t) {
+        Vector3 p = Interpolate(fromIndex, t);
+        if (displayXZ)
+            p = FlipXYtoXZ(p);
+        return transform.TransformPoint(p);
+    }
+
+    /// Get derivative of the curve at a point in local 2D space. Note that if the control
     /// points are not evenly spaced, this may result in varying speeds.
     /// This is not normalised by default in case you don't need that
     public Vector2 Derivative(float t) {
@@ -140,13 +187,34 @@ public class Spline2DComponent : MonoBehaviour {
         return spline.Derivative(t);
     }
 
-    /// Get derivative of curve between one point on the curve and the next
+    /// Get derivative of the curve at a point in world space. Note that if the control
+    /// points are not evenly spaced, this may result in varying speeds.
+    /// This is not normalised by default in case you don't need that
+    public Vector3 DerivativeWorldSpace(float t) {
+        Vector3 d = Derivative(t);
+        if (displayXZ)
+            d = FlipXYtoXZ(d);
+        return transform.TransformDirection(d);
+    }
+
+    /// Get derivative of curve between one point on the curve and the next in local 2D space
     /// Rather than interpolating over the entire curve, this simply interpolates
     /// between the point with fromIndex and the next segment
     /// This is not normalised by default in case you don't need that
     public Vector2 Derivative(int fromIndex, float t) {
         InitSpline();
         return spline.Derivative(fromIndex, t);
+    }
+
+    /// Get derivative of curve between one point on the curve and the next in world space
+    /// Rather than interpolating over the entire curve, this simply interpolates
+    /// between the point with fromIndex and the next segment
+    /// This is not normalised by default in case you don't need that
+    public Vector3 DerivativeWorldSpace(int fromIndex, float t) {
+        Vector3 d = Derivative(fromIndex, t);
+        if (displayXZ)
+            d = FlipXYtoXZ(d);
+        return transform.TransformDirection(d);
     }
 
     /// Convert a physical distance to a t position on the curve. This is
@@ -156,19 +224,38 @@ public class Spline2DComponent : MonoBehaviour {
         return spline.DistanceToLinearT(dist);
     }
 
-    /// Interpolate a position on the entire curve based on distance. This is
+    /// Interpolate a position on the entire curve based on distance in local 2D space. This is
     /// approximate, the accuracy of can be changed via LengthSamplesPerSegment
     public Vector2 InterpolateDistance(float dist) {
         InitSpline();
         return spline.InterpolateDistance(dist);
     }
 
-    /// Get derivative of the curve at a point long the curve at a distance. This
+    /// Interpolate a position on the entire curve based on distance in world space. This is
+    /// approximate, the accuracy of can be changed via LengthSamplesPerSegment
+    public Vector3 InterpolateDistanceWorldSpace(float dist) {
+        var p = InterpolateDistance(dist);
+        if (displayXZ)
+            p = FlipXYtoXZ(p);
+        return transform.TransformPoint(p);
+    }
+
+    /// Get derivative of the curve at a point long the curve at a distance, in local 2D space. This
     /// is approximate, the accuracy of this can be changed via
     /// LengthSamplesPerSegment
     public Vector2 DerivativeDistance(float dist) {
         InitSpline();
         return spline.DerivativeDistance(dist);
+    }
+
+    /// Get derivative of the curve at a point long the curve at a distance in world space. This
+    /// is approximate, the accuracy of this can be changed via
+    /// LengthSamplesPerSegment
+    public Vector2 DerivativeDistanceWorldSpace(float dist) {
+        Vector3 d = DerivativeDistance(dist);
+        if (displayXZ)
+            d = FlipXYtoXZ(d);
+        return transform.TransformDirection(d);
     }
 
     // Editor functions
@@ -187,16 +274,9 @@ public class Spline2DComponent : MonoBehaviour {
 		}
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.yellow;
-        Vector3 plast = GetPoint(0);
-        if (displayXZ) {
-            plast = FlipXYtoXZ(plast);
-        }
-        plast = transform.TransformPoint(plast);
+        Vector3 plast = GetPointWorldSpace(0);
         for (float t = sampleWidth; t <= 1.0f; t += sampleWidth) {
-            Vector3 p = Interpolate(t);
-            if (displayXZ)
-                p = FlipXYtoXZ(p);
-            p = transform.TransformPoint(p);
+            Vector3 p = InterpolateWorldSpace(t);
 
             Gizmos.DrawLine(plast, p);
             plast = p;
@@ -210,13 +290,8 @@ public class Spline2DComponent : MonoBehaviour {
         float sampleWidth = 1.0f / ((float)Count * stepsPerSegment);
         Gizmos.color = Color.magenta;
         for (float t = 0.0f; t <= 1.0f; t += sampleWidth) {
-            Vector3 p = Interpolate(t);
-            if (displayXZ)
-                p = FlipXYtoXZ(p);
-            transform.TransformPoint(p);
-			Vector3 tangent = Derivative(t);
-            if (displayXZ)
-                tangent = FlipXYtoXZ(tangent);
+            Vector3 p = InterpolateWorldSpace(t);
+			Vector3 tangent = DerivativeWorldSpace(t);
             Gizmos.DrawLine(p, p + tangent);
         }
 	}
@@ -227,21 +302,16 @@ public class Spline2DComponent : MonoBehaviour {
 		}
         float len = Length;
         Gizmos.color = Color.green;
-		Quaternion rot90 = Quaternion.AngleAxis(90, displayXZ ? Vector3.up : Vector3.forward);
+		Quaternion rot90 = Quaternion.AngleAxis(90, transform.TransformDirection(displayXZ ? Vector3.up : Vector3.forward));
 
         for (float dist = 0.0f; dist <= len; dist += distanceMarker) {
 			// Just so we only have to perform the dist->t calculation once
 			// for both position & tangent
 			float t = DistanceToLinearT(dist);
-            Vector3 p = Interpolate(t);
-            if (displayXZ)
-                p = FlipXYtoXZ(p);
-            p = transform.TransformPoint(p);
-			Vector3 tangent = Derivative(t);
+            Vector3 p = InterpolateWorldSpace(t);
+			Vector3 tangent = DerivativeWorldSpace(t);
 			// Rotate tangent 90 degrees so we can render marker
 			tangent.Normalize();
-            if (displayXZ)
-                tangent = FlipXYtoXZ(tangent);
 			tangent = rot90 * tangent;
 			Vector3 t1 = p + tangent;
 			Vector3 t2 = p - tangent;
@@ -250,10 +320,10 @@ public class Spline2DComponent : MonoBehaviour {
 
 	}
 
-    public static Vector3 FlipXYtoXZ(Vector3 inp) {
+    private static Vector3 FlipXYtoXZ(Vector3 inp) {
         return new Vector3(inp.x, 0, inp.y);
     }
-    public static Vector3 FlipXZtoXY(Vector3 inp) {
+    private static Vector3 FlipXZtoXY(Vector3 inp) {
         return new Vector3(inp.x, inp.z, 0);
     }
 

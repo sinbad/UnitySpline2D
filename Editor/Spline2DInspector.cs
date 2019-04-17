@@ -141,10 +141,7 @@ public class Spline2DInspector : Editor {
     }
 
 	private void ShowPoint (int index) {
-		Vector3 point = spline.GetPoint(index);
-		if (spline.displayXZ)
-			point = Spline2DComponent.FlipXYtoXZ(point);
-		point = spline.transform.TransformPoint(point);
+		Vector3 point = spline.GetPointWorldSpace(index);
 		float size = HandleUtility.GetHandleSize(point);
 		if (index == 0) {
 			Handles.color = Color.green;
@@ -164,10 +161,7 @@ public class Spline2DInspector : Editor {
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(spline, "Move Point");
 				EditorUtility.SetDirty(spline);
-				Vector3 newPoint = spline.transform.InverseTransformPoint(point);
-				if (spline.displayXZ) 
-					newPoint = Spline2DComponent.FlipXZtoXY(newPoint);
-				spline.SetPoint(index, newPoint);
+				spline.SetPointWorldSpace(index, point);
 			}
 		}
 	}
