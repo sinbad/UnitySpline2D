@@ -12,6 +12,7 @@ public class Spline2DInspector : Editor {
 	public override void OnInspectorGUI () {
 		spline = target as Spline2DComponent;
 
+		EditorGUILayout.Space();
 		GUILayout.BeginHorizontal();
 		if (GUILayout.Button("Add Point")) {
 			Undo.RecordObject(spline, "Add Point");
@@ -31,8 +32,13 @@ public class Spline2DInspector : Editor {
 		}
 		GUILayout.EndHorizontal();
 		GUI.enabled = true;
-		DrawSelectedPointInspector();
 
+		EditorGUILayout.Space();
+		EditorGUI.indentLevel += 2;
+		DrawSelectedPointInspector();
+		EditorGUI.indentLevel -= 2;
+
+		EditorGUILayout.Space();
 		// DON'T use the default inspector, it will bypass setters and we need
 		// those to be called to properly dirty the state
 		EditorGUI.BeginChangeCheck();
@@ -61,6 +67,7 @@ public class Spline2DInspector : Editor {
 		}
 
 
+		EditorGUILayout.Space();
 		EditorGUILayout.BeginHorizontal();
 		EditorGUI.BeginChangeCheck();
 		bool showDistance = EditorGUILayout.Toggle("Show Distance", spline.showDistance);
@@ -76,12 +83,21 @@ public class Spline2DInspector : Editor {
 		}
 		EditorGUILayout.EndHorizontal();
 
+		EditorGUILayout.BeginHorizontal();
 		EditorGUI.BeginChangeCheck();
 		bool showNormals = EditorGUILayout.Toggle("Show Normals", spline.showNormals);
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(spline, "Toggle Show Normals");
 			spline.showNormals = showNormals;
 		}
+
+		EditorGUI.BeginChangeCheck();
+		float nmlen = EditorGUILayout.FloatField("Length", spline.normalDisplayLength);
+		if (EditorGUI.EndChangeCheck()) {
+			Undo.RecordObject(spline, "Set Normal Display Length");
+			spline.normalDisplayLength = nmlen;
+		}
+		EditorGUILayout.EndHorizontal();
 
 	}
 

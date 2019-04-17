@@ -62,6 +62,7 @@ public class Spline2DComponent : MonoBehaviour {
     // For gizmo drawing
 	private const int stepsPerSegment = 20;
     public bool showNormals;
+    public float normalDisplayLength = 5.0f;
 	public bool showDistance;
 	public float distanceMarker = 1.0f;
 
@@ -308,6 +309,9 @@ public class Spline2DComponent : MonoBehaviour {
         for (float t = 0.0f; t <= 1.0f; t += sampleWidth) {
             Vector3 p = InterpolateWorldSpace(t);
 			Vector3 tangent = DerivativeWorldSpace(t);
+			tangent.Normalize();
+            tangent *= normalDisplayLength;
+            p -= tangent * 0.5f;
             Gizmos.DrawLine(p, p + tangent);
         }
 	}
