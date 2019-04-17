@@ -18,7 +18,8 @@ Unity Spline2D is a free 2D simple spline library for Unity.
   traverse the curve at a known speed regardless of the structure of the curve.
 * **Tweakable curvature**: if you want something other than Catmull-Rom style
   curves, you can increase/decrease the `Curvature` property to change the shape
-* **Optimised for 2D**: only works in X/Y like 2D mode in Unity 
+* **Optimised for 2D**: always flat, defaults to X/Y like 2D mode in Unity 
+  but can be switched to display/edit in X/Z for use with 3D floor planes
 
 ## Installation
 * Place `Spline2D.cs` and `Spline2DComponent.cs` anywhere you like
@@ -36,7 +37,7 @@ Unity Spline2D is a free 2D simple spline library for Unity.
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Steve Streeting
+Copyright (c) 2016-2019 Steve Streeting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
