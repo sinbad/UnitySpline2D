@@ -58,7 +58,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Notes
-* Tested in Unity 5.4
+* Tested in Unity 5.4 - 2018
 * Pull requests welcome!
 
 [Spline2D]: https://github.com/sinbad/UnitySpline2D
