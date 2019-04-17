@@ -112,6 +112,22 @@ public class Spline2DComponent : MonoBehaviour {
         SetPoint(index, localP);
     }
 
+    /// Insert a point before the given index, in local 2D space
+    public void InsertPoint(int index, Vector2 p) {
+        // We share the same list so adding there adds here
+        InitSpline();
+        spline.InsertPoint(index, p);
+    }
+
+    /// Insert a point before the given index, in world space
+    /// If point is off the plane of the spline it will be projected back on to it
+    public void InsertPointWorldSpace(int index, Vector3 p) {
+        Vector3 localP = transform.InverseTransformPoint(p);
+        if (displayXZ) 
+            localP = FlipXZtoXY(localP);
+        InsertPoint(index, localP);
+    }
+
     // Remove a point on the curve
     public void RemovePoint(int index) {
         // We share the same list so changing there adds here

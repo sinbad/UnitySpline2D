@@ -21,14 +21,16 @@ public class Spline2DInspector : Editor {
 		if (selectedIndex == -1) {
 			GUI.enabled = false;
 		}
+		if (GUILayout.Button("Insert Point")) {
+			Undo.RecordObject(spline, "Insert Point");
+			InsertNewPoint();
+		}
 		if (GUILayout.Button("Remove Point")) {
 			Undo.RecordObject(spline, "Remove Point");
 			RemovePoint();
 		}
 		GUILayout.EndHorizontal();
-		if (selectedIndex == -1) {
-			GUI.enabled = true;
-		}
+		GUI.enabled = true;
 		DrawSelectedPointInspector();
 
 		// DON'T use the default inspector, it will bypass setters and we need
@@ -111,6 +113,37 @@ public class Spline2DInspector : Editor {
 		spline.AddPoint(pos);
 
 	}
+
+	private void InsertNewPoint() {
+		if (selectedIndex < 0 || selectedIndex >= spline.Count)
+			return;
+
+		if (spline.Count == 0) {
+			AddNewPoint();
+		} else {
+			Vector2 pos = Vector2.zero;
+			if (selectedIndex == 0) {
+				// Insert at start
+				// If nothing to project, just down & left
+				if (spline.Count == 1)
+					pos = spline.GetPoint(0) - Vector2.up * 2.0f - Vector2.right * 2.0f;
+				else {
+					// Extended from  previous & varied a little
+					// rotate left/right alternately for interest
+					Vector2 tangent = spline.Derivative(0);
+					pos = spline.GetPoint(0) - tangent * 2f;
+				}
+
+			} else {
+				// split half way between previous and selected
+				pos = spline.Interpolate(selectedIndex-1, 0.5f);
+			}
+
+			spline.InsertPoint(selectedIndex, pos);
+		}
+	}
+
+	
 
 	private void DrawSelectedPointInspector() {
 		if (selectedIndex == -1) {

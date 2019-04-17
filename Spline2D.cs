@@ -155,11 +155,19 @@ public class Spline2D {
         tangentsDirty = true;
         lenSampleDirty = true;
     }
-    // Remove a point on the curve
+    /// Remove a point on the curve
     public void RemovePoint(int index) {
         Assert.IsTrue(index < points.Count, "Spline2D: point index out of range");
 
         points.RemoveAt(index);
+        tangentsDirty = true;
+        lenSampleDirty = true;
+    }
+
+    /// Insert a point on the curve before the given index
+    public void InsertPoint(int index, Vector2 p) {
+        Assert.IsTrue(index <= points.Count && index >= 0, "Spline2D: point index out of range");
+        points.Insert(index, p);
         tangentsDirty = true;
         lenSampleDirty = true;
     }
