@@ -1,5 +1,7 @@
 # Unity Spline2D
 
+> #### Note: I have stopped using Unity and so am not maintaining this library any more.
+
 Unity Spline2D is a free 2D simple spline library for Unity. 
 
 <a href="https://www.youtube.com/watch?feature=player_embedded&v=io6q2XcSYlk"
